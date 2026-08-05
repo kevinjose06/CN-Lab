@@ -76,7 +76,6 @@ int main()
         strcat(result, " ");
         word = strtok(NULL, " ");
     }
-
     sendto(sockfd, result, strlen(result) + 1, 0,
            (struct sockaddr *)&clientAddr, len);
 
