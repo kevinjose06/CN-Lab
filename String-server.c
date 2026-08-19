@@ -42,19 +42,8 @@ int main()
     printf("Received: %s\n", buffer);
 
     char *abbr[] = {"idc","tbh","ig","tbf","atm","irl","lol","asap","omg","ttyl","idk","nvm"};
-    char *full[] = {"I don't care",
-        "to be honest",
-        "I guess",
-        "to be fair",
-        "at the moment",
-        "in real life",
-        "laughing out loud",
-        "as soon as possible",
-        "oh my God",
-        "talk to you later",
-        "I don't know",
-        "never mind"
-    };
+    char *full[] = {"I don't care","to be honest","I guess","to be fair","at the moment","in real life","laughing out loud",
+    "as soon as possible","oh my God","talk to you later","I don't know","never mind";
 
     char result[1024] = "";
     char *word = strtok(buffer, " ");
