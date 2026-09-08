@@ -19,7 +19,6 @@ void *handle_client(void *arg)
     char message[1100];
     int i, n;
 
-    // Find client ID
     for (i = 0; i < count; i++)
     {
         if (clients[i] == client)
@@ -28,7 +27,6 @@ void *handle_client(void *arg)
             break;
         }
     }
-
     while (1)
     {
         n = recv(client, msg, sizeof(msg) - 1, 0);
@@ -37,11 +35,8 @@ void *handle_client(void *arg)
             break;
 
         msg[n] = '\0';
-
-        // Add client ID to message
         sprintf(message, "Client %d: %s", id, msg);
 
-        // Send to all other clients
         for (i = 0; i < count; i++)
         {
             if (clients[i] != client)
@@ -66,7 +61,6 @@ int main()
     address.sin_port = htons(5000);
 
     bind(server, (struct sockaddr *)&address, sizeof(address));
-
     listen(server, MAX);
 
     printf("Server started...\n");

@@ -41,9 +41,7 @@ int main()
     server.sin_addr.s_addr = inet_addr("127.0.0.1");
 
     connect(client, (struct sockaddr *)&server, sizeof(server));
-
     printf("Connected to server\n");
-
     pthread_create(&thread, NULL, receive, NULL);
 
     while (1)
