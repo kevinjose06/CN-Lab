@@ -4,88 +4,84 @@
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
-#include <sys/select.h>
+#include <pthread.h>
 
-int main()
+#define MAX 10
+
+int clients[MAX];
+int count = 0;
+
+void *handle_client(void *arg)
 {
-    int server, client, clients[10] = {0};
-    char msg[100];
+    int client = *(int *)arg;
+    int id = 0;
+    char msg[1024];
+    char message[1100];
+    int i, n;
 
-    server = socket(AF_INET, SOCK_STREAM, 0);
-
-    struct sockaddr_in addr;
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(8080);
-    addr.sin_addr.s_addr = INADDR_ANY;
-
-    bind(server, (struct sockaddr *)&addr, sizeof(addr));
-    listen(server, 5);
-
-    printf("Chat server started...\n");
-
-    while (1)
+    // Find client ID
+    for (i = 0; i < count; i++)
     {
-        fd_set set;
-        FD_ZERO(&set);
-        FD_SET(server, &set);
-
-        int max = server;
-
-        for (int i = 0; i < 10; i++)
+        if (clients[i] == client)
         {
-            if (clients[i] > 0)
-            {
-                FD_SET(clients[i], &set);
-
-                if (clients[i] > max)
-                    max = clients[i];
-            }
-        }
-
-        select(max + 1, &set, NULL, NULL, NULL);
-
-        if (FD_ISSET(server, &set))
-        {
-            client = accept(server, NULL, NULL);
-
-            for (int i = 0; i < 10; i++)
-            {
-                if (clients[i] == 0)
-                {
-                    clients[i] = client;
-                    break;
-                }
-            }
-
-            printf("New client connected\n");
-        }
-
-        for (int i = 0; i < 10; i++)
-        {
-            if (clients[i] > 0 && FD_ISSET(clients[i], &set))
-            {
-                int n = recv(clients[i], msg, sizeof(msg), 0);
-
-                if (n <= 0)
-                {
-                    close(clients[i]);
-                    clients[i] = 0;
-                    printf("Client disconnected\n");
-                }
-                else
-                {
-                    msg[n] = '\0';
-
-                    for (int j = 0; j < 10; j++)
-                    {
-                        if (clients[j] > 0)
-                            send(clients[j], msg, strlen(msg), 0);
-                    }
-                }
-            }
+            id = i + 1;
+            break;
         }
     }
 
-    close(server);
+    while (1)
+    {
+        n = recv(client, msg, sizeof(msg) - 1, 0);
+
+        if (n <= 0)
+            break;
+
+        msg[n] = '\0';
+
+        // Add client ID to message
+        sprintf(message, "Client %d: %s", id, msg);
+
+        // Send to all other clients
+        for (i = 0; i < count; i++)
+        {
+            if (clients[i] != client)
+                send(clients[i], message, strlen(message), 0);
+        }
+    }
+
+    close(client);
+    return NULL;
+}
+
+int main()
+{
+    int server, client;
+    struct sockaddr_in address;
+    pthread_t thread;
+
+    server = socket(AF_INET, SOCK_STREAM, 0);
+
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_port = htons(5000);
+
+    bind(server, (struct sockaddr *)&address, sizeof(address));
+
+    listen(server, MAX);
+
+    printf("Server started...\n");
+
+    while (1)
+    {
+        client = accept(server, NULL, NULL);
+
+        clients[count] = client;
+        count++;
+
+        printf("Client %d connected\n", count);
+
+        pthread_create(&thread, NULL, handle_client, &client);
+    }
+
     return 0;
 }
