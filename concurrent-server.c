@@ -1,3 +1,7 @@
+/*Implement a concurrent Time Server application using UDP to execute the program at a
+remote server. The client sends a time request to the server which sends its system time
+back. The client then displays the received time value.*/
+
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
