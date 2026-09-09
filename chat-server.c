@@ -35,8 +35,6 @@ void *handle_client(void *arg)
             break;
 
         msg[n] = '\0';
-        sprintf(message, "Client %d: %s", id, msg);
-
         for (i = 0; i < count; i++)
         {
             if (clients[i] != client)

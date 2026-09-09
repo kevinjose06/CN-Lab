@@ -21,8 +21,6 @@ void *receive(void *arg)
         msg[n] = '\0';
 
         printf("\n%s", msg);
-        printf("You: ");
-        fflush(stdout);
     }
 
     return NULL;
