@@ -19,14 +19,6 @@ void *handle_client(void *arg)
     char message[1100];
     int i, n;
 
-    for (i = 0; i < count; i++)
-    {
-        if (clients[i] == client)
-        {
-            id = i + 1;
-            break;
-        }
-    }
     while (1)
     {
         n = recv(client, msg, sizeof(msg) - 1, 0);
