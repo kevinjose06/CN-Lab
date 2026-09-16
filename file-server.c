@@ -9,7 +9,6 @@ message.*/
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <sys/types.h>
-#include <sys/wait.h>
 #include <fcntl.h>
 
 int main()
@@ -17,7 +16,7 @@ int main()
     int server, client, fd, n;
     char filename[100];
     char buffer[1024];
-    char message[1200];
+    char message[] = "File not found\n";
     struct sockaddr_in address;
     pid_t pid;
 
@@ -45,18 +44,16 @@ int main()
             recv(client, filename, sizeof(filename) - 1, 0);
             filename[strcspn(filename, "\n")] = '\0';
 
+            send(client, &pid, sizeof(pid), 0);
+
             fd = open(filename, O_RDONLY);
 
             if (fd < 0)
             {
-                sprintf(message, "PID: %d\nFile not found\n", getpid());
                 send(client, message, strlen(message), 0);
             }
             else
             {
-                sprintf(message, "PID: %d\n", getpid());
-                send(client, message, strlen(message), 0);
-
                 while ((n = read(fd, buffer, sizeof(buffer))) > 0)
                     send(client, buffer, n, 0);
 

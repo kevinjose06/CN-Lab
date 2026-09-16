@@ -9,6 +9,7 @@ int main()
     int client, n;
     char filename[100];
     char buffer[1024];
+    pid_t pid;
     struct sockaddr_in address;
 
     client = socket(AF_INET, SOCK_STREAM, 0);
@@ -23,6 +24,10 @@ int main()
     fgets(filename, sizeof(filename), stdin);
 
     send(client, filename, strlen(filename), 0);
+
+    recv(client, &pid, sizeof(pid), 0);
+
+    printf("PID: %d\n", pid);
 
     while ((n = recv(client, buffer, sizeof(buffer) - 1, 0)) > 0)
     {
