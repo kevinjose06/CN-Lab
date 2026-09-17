@@ -10,6 +10,7 @@ message.*/
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <fcntl.h>
+#include <stdlib.h>
 
 int main()
 {
@@ -41,9 +42,18 @@ int main()
         {
             close(server);
 
-            recv(client, filename, sizeof(filename) - 1, 0);
+            n = recv(client, filename, sizeof(filename) - 1, 0);
+
+            if (n <= 0)
+            {
+                close(client);
+                return 0;
+            }
+
+            filename[n] = '\0';
             filename[strcspn(filename, "\n")] = '\0';
 
+            pid = getpid();
             send(client, &pid, sizeof(pid), 0);
 
             fd = open(filename, O_RDONLY);
