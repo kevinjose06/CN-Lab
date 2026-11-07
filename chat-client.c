@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -13,7 +14,7 @@ void *receive(void *arg)
 
     while (1)
     {
-        n = recv(client, msg, sizeof(msg), 0);
+        n = recv(client, msg, sizeof(msg) - 1, 0);
 
         if (n <= 0)
             break;
@@ -21,6 +22,8 @@ void *receive(void *arg)
         msg[n] = '\0';
 
         printf("\n%s", msg);
+        printf("You: ");
+        fflush(stdout);
     }
 
     return NULL;
@@ -39,13 +42,18 @@ int main()
     server.sin_addr.s_addr = inet_addr("127.0.0.1");
 
     connect(client, (struct sockaddr *)&server, sizeof(server));
+
     printf("Connected to server\n");
+
     pthread_create(&thread, NULL, receive, NULL);
 
     while (1)
     {
         printf("You: ");
-        fgets(msg, sizeof(msg), stdin);
+        fflush(stdout);
+
+        if (fgets(msg, sizeof(msg), stdin) == NULL)
+            break;
 
         if (strncmp(msg, "exit", 4) == 0)
             break;
@@ -54,6 +62,8 @@ int main()
     }
 
     close(client);
+
+    pthread_join(thread, NULL);
 
     return 0;
 }
